@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                     <div class="nk-content-body">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Catégories de Voitures</h3>
+                                <h3 class="nk-block-title page-title">Gestion des catégories des voitures</h3>
                                 <div class="nk-block-des text-soft">
                                     <p>Toutes les catégories</p>
                                 </div>
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                         </div>
 
                         <!-- Add Category Modal -->
-                        <div class="modal fade" id="addCategoryModal">
+                        <div class="modal fade" id="addCategoryModal" tabindex="-1">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -165,7 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                         <tbody>
                                             <?php
                                     // Fetch categories from the database
-                                    include 'db.php';
                                     $result = $conn->query("SELECT * FROM app_categories_voiture");
                                     if ($result->num_rows > 0) {
                                         while ($row = $result->fetch_assoc()) {
@@ -251,14 +250,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         <?php include 'footer.php'; ?>
     </div>
 
-    <script src="./assets/js/bundle.js?ver=3.2.2"></script>
-    <script src="./assets/js/scripts.js?ver=3.2.2"></script>
-    <script src="./assets/js/charts/chart-crm.js?ver=3.2.2"></script>
 
     <script>
 $(document).ready(function () {
     // Add Category Form
     $('#categoryForm').on('submit', function (event) {
+        event.preventDefault();
+        $.ajax({
+            url: 'gestion-categories-voitures.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function (response) {
+                alert(response);
+                location.reload();
+            },
+            error: function () {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+     // Edit Category Form
+     $('#editCategoryForm').on('submit', function (event) {
         event.preventDefault();
         $.ajax({
             url: 'gestion-categories-voitures.php',
@@ -289,24 +302,14 @@ $(document).ready(function () {
         $('#editCategoryDescriptionFr').val(descFr);
     });
 
-    // Edit Category Form
-    $('#editCategoryForm').on('submit', function (event) {
-        event.preventDefault();
-        $.ajax({
-            url: 'gestion-categories-voitures.php',
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function (response) {
-                alert(response);
-                location.reload();
-            },
-            error: function () {
-                alert('An error occurred. Please try again.');
-            }
-        });
-    });
+   
 });
     </script>
-</body>
 
+        <script src="./assets/js/bundle.js?ver=3.2.2"></script>
+        <script src="./assets/js/scripts.js?ver=3.2.2"></script>
+        <script src="./assets/js/charts/chart-crm.js?ver=3.2.2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>

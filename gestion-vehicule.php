@@ -1,95 +1,97 @@
 <?php
-include 'db.php';
+include 'db.php'; // Include database connection
 
-// Add new vehicle
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'add') {
-    $nom = htmlspecialchars($_POST['nom_vehicule']);
-    $modele = htmlspecialchars($_POST['modele']);
-    $description = htmlspecialchars($_POST['description']);
-    $clim = htmlspecialchars($_POST['clim']);
+$action = $_POST['action'] ?? null;
+
+if ($action === 'update') {
+    // Update Vehicle Logic
+    $id = $_POST['id'];
+    $nom_vehicule = $_POST['nom_vehicule'];
+    $modele = $_POST['modele'];
+    $description = $_POST['description'];
+    $clim = $_POST['clim'];
     $passager = intval($_POST['passager']);
-    $transmission = htmlspecialchars($_POST['transmission']);
+    $transmission = $_POST['transmission'];
     $portes = intval($_POST['portes']);
-    $bagages = htmlspecialchars($_POST['bagages']);
-    
-    // Handle image upload
-    $images = [];
+    $bagages = $_POST['bagages'];
+
+    // Retrieve existing images
+    $stmt = $conn->prepare("SELECT images FROM app_vehicule WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $existingImages = $result->fetch_assoc()['images'] ?? '';
+    $stmt->close();
+    $existingImagesArray = $existingImages ? json_decode($existingImages, true) : [];
+
+    // Handle new image uploads
+    $uploadedImages = [];
     if (!empty($_FILES['images']['name'][0])) {
-        foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-            $image_name = $_FILES['images']['name'][$key];
-            $image_tmp_name = $_FILES['images']['tmp_name'][$key];
-            $image_path = 'uploads/' . basename($image_name);
-            if (move_uploaded_file($image_tmp_name, $image_path)) {
-                $images[] = $image_path;
-            }
+        // Process the new image upload
+        $filename = uniqid() . '-' . basename($_FILES['images']['name'][0]);
+        $destination = 'uploads/' . $filename;
+
+        if (move_uploaded_file($_FILES['images']['tmp_name'][0], $destination)) {
+            // Only add the new uploaded image to the list
+            $uploadedImages[] = $filename;
+        } else {
+            echo "Error uploading image.";
         }
     }
-    $images_json = json_encode($images);
 
-    $stmt = $conn->prepare("INSERT INTO app_vehicule (nom_vehicule, modele, description, clim, passager, transmission, portes, bagages, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssisiiss", $nom, $modele, $description, $clim, $passager, $transmission, $portes, $bagages, $images_json);
+    // If no new image was uploaded, keep the existing ones
+    $finalImages = $uploadedImages ? $uploadedImages : $existingImagesArray;
+
+    // Convert array to JSON
+    $images = json_encode($finalImages);
+
+    // Update database
+    $stmt = $conn->prepare("UPDATE app_vehicule SET 
+        nom_vehicule = ?, 
+        modele = ?, 
+        description = ?, 
+        clim = ?, 
+        passager = ?, 
+        transmission = ?, 
+        portes = ?, 
+        bagages = ?, 
+        images = ?, 
+        updated_at = NOW() 
+        WHERE id = ?");
+    $stmt->bind_param(
+        "ssssissisi",
+        $nom_vehicule,
+        $modele,
+        $description,
+        $clim,
+        $passager,
+        $transmission,
+        $portes,
+        $bagages,
+        $images,
+        $id
+    );
 
     if ($stmt->execute()) {
-        header("Location: {$_SERVER['PHP_SELF']}?success=added");
-        exit;
+        echo "Vehicle updated successfully.";
     } else {
-        header("Location: {$_SERVER['PHP_SELF']}?error=" . urlencode($stmt->error));
-        exit;
+        echo "Error: " . $stmt->error;
     }
     $stmt->close();
 }
 
-// Delete vehicle
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
+    // Delete Vehicle Logic
+    $id = $_GET['id'];
+
+    // Delete the vehicle from the database
     $stmt = $conn->prepare("DELETE FROM app_vehicule WHERE id = ?");
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        header("Location: {$_SERVER['PHP_SELF']}?success=deleted");
-        exit;
+        echo "Vehicle deleted successfully.";
     } else {
-        header("Location: {$_SERVER['PHP_SELF']}?error=" . urlencode($stmt->error));
-        exit;
-    }
-    $stmt->close();
-}
-
-// Update vehicle
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update') {
-    $id = intval($_POST['vehiculeId']);
-    $nom = htmlspecialchars($_POST['nom_vehicule']);
-    $modele = htmlspecialchars($_POST['modele']);
-    $description = htmlspecialchars($_POST['description']);
-    $clim = htmlspecialchars($_POST['clim']);
-    $passager = intval($_POST['passager']);
-    $transmission = htmlspecialchars($_POST['transmission']);
-    $portes = intval($_POST['portes']);
-    $bagages = htmlspecialchars($_POST['bagages']);
-    
-    // Handle image upload
-    $images = [];
-    if (!empty($_FILES['images']['name'][0])) {
-        foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-            $image_name = $_FILES['images']['name'][$key];
-            $image_tmp_name = $_FILES['images']['tmp_name'][$key];
-            $image_path = 'uploads/' . basename($image_name);
-            if (move_uploaded_file($image_tmp_name, $image_path)) {
-                $images[] = $image_path;
-            }
-        }
-    }
-    $images_json = json_encode($images);
-
-    $stmt = $conn->prepare("UPDATE app_vehicule SET nom_vehicule = ?, modele = ?, description = ?, clim = ?, passager = ?, transmission = ?, portes = ?, bagages = ?, images = ? WHERE id = ?");
-    $stmt->bind_param("sssisiissi", $nom, $modele, $description, $clim, $passager, $transmission, $portes, $bagages, $images_json, $id);
-
-    if ($stmt->execute()) {
-        header("Location: {$_SERVER['PHP_SELF']}?success=updated");
-        exit;
-    } else {
-        header("Location: {$_SERVER['PHP_SELF']}?error=" . urlencode($stmt->error));
-        exit;
+        echo "Error: " . $stmt->error;
     }
     $stmt->close();
 }
@@ -115,8 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                 <div class="nk-content-inner">
                     <div class="nk-content-body">
                         <div class="nk-block-between">
-                        <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Gestion des vehicules</h3>
+                            <div class="nk-block-head-content">
+                                <h3 class="nk-block-title page-title">Gestion des véhicules</h3>
                                 <div class="nk-block-des text-soft">
                                     <p>Toutes les vehicules</p>
                                 </div>
@@ -178,6 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                             <div class="form-group">
                                                 <label for="images">Images (Upload multiple files)</label>
                                                 <input type="file" class="form-control" name="images[]" multiple>
+                                                <div id="imagePreviewContainer" class="mt-2"></div> 
                                             </div>
                                             <button type="submit" class="btn btn-primary">Ajouter</button>
                                         </form>
@@ -192,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                 <table class="datatable-init nowrap nk-tb-list" id="vehicleTable">
                                     <thead>
                                         <tr>
+                                            <th>Images</th>
                                             <th>Nom du véhicule</th>
                                             <th>Modèle</th>
                                             <th>Climatisation</th>
@@ -209,21 +213,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                         $result = $conn->query("SELECT * FROM app_vehicule");
                                         if ($result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
-                                                echo "<tr>
-                                                    <td>{$row['nom_vehicule']}</td>
-                                                    <td>{$row['modele']}</td>
-                                                    <td>{$row['clim']}</td>
-                                                    <td>{$row['passager']}</td>
-                                                    <td>{$row['transmission']}</td>
-                                                    <td>{$row['portes']}</td>
-                                                    <td>{$row['bagages']}</td>
-                                                    <td>{$row['created_at']}</td>
-                                                    <td>{$row['updated_at']}</td>
-                                                    <td>
+                                                echo "<tr>";
+                                                echo "<td>";
+                                                if (!empty($row['images'])) {
+                                                    $images = explode(',', $row['images']);
+                                                    foreach ($images as $image) {
+                                                        echo "<img src='uploads/$image' alt='Vehicle Image' style='width: 50px; height: 50px; margin: 5px;'>";
+                                                    }
+                                                } else {
+                                                    echo "No Images";
+                                                }
+                                                echo "</td>";
+                                                echo "<td>{$row['nom_vehicule']}</td>";
+                                                echo "<td>{$row['modele']}</td>";
+                                                echo "<td>{$row['clim']}</td>";
+                                                echo "<td>{$row['passager']}</td>";
+                                                echo "<td>{$row['transmission']}</td>";
+                                                echo "<td>{$row['portes']}</td>";
+                                                echo "<td>{$row['bagages']}</td>";
+                                                echo "<td>{$row['created_at']}</td>";
+                                                echo "<td>{$row['updated_at']}</td>";
+                                                echo "<td>
                                                         <a class='btn btn-trigger btn-icon btn-trash' href='?action=delete&id={$row['id']}' onclick='return confirm(\"Confirmer la suppression ?\")'><em class='icon ni ni-trash'></em></a>
-                                                        <button class='btn btn-trigger btn-icon btn-trash' data-bs-toggle='modal' data-bs-target='#editVehicleModal{$row['id']}'><em class='icon ni ni-edit'></em></button>
-                                                    </td>
-                                                </tr>";
+                                                        <button class='btn btn-trigger btn-icon btn-edit' data-bs-toggle='modal' data-bs-target='#editVehicleModal{$row['id']}'><em class='icon ni ni-edit'></em></button>
+                                                    </td>";
+                                                echo "</tr>";
                                             }
                                         } else {
                                             echo "<tr><td colspan='10'>Aucun véhicule trouvé</td></tr>";
@@ -251,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                         <div class="modal-body">
                                             <form method="POST" enctype="multipart/form-data">
                                                 <input type="hidden" name="action" value="update">
-                                                <input type="hidden" name="vehiculeId" value="<?php echo $row['id']; ?>">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                                 <div class="form-group">
                                                     <label for="nom_vehicule">Nom du véhicule</label>
                                                     <input type="text" class="form-control" name="nom_vehicule" value="<?php echo $row['nom_vehicule']; ?>" required>
@@ -291,20 +305,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                                     <input type="text" class="form-control" name="bagages" value="<?php echo $row['bagages']; ?>" required>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="images">Images (Upload multiple files)</label>
-                                                    <input type="file" class="form-control" name="images[]" multiple>
+                                                    <label for="images">Images</label>
+                                                    <input type="file" class="form-control" name="images[]" accept="image/*">
                                                 </div>
-                                                <button type="submit" class="btn btn-info">Modifier</button>
+                                                <button type="submit" class="btn btn-primary">Mettre à jour</button>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        <?php } ?>
+                        <?php
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="./assets/js/bundle.js?ver=3.2.2"></script>
+    <script src="./assets/js/scripts.js?ver=3.2.2"></script>
 </body>
 </html>

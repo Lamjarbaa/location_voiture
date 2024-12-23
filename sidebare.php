@@ -29,7 +29,7 @@ session_start();
                                 <li class="nk-menu-item">
                                     <a href="gestion-utilisateurs.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion utilisateur</span>
+                                        <span class="nk-menu-text">Gestion des utilisateurs</span>
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
@@ -41,13 +41,13 @@ session_start();
                                 <li class="nk-menu-item">
                                     <a href="gestion-saison.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion de saison</span>
+                                        <span class="nk-menu-text">Gestion des saisons</span>
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
                                     <a href="gestion-vehicule.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion de Véhicule </span>
+                                        <span class="nk-menu-text">Gestion des Véhicules </span>
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
@@ -57,25 +57,25 @@ session_start();
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
-                                    <a href="gestion-carties.php" class="nk-menu-link">
+                                    <a href="gestion-qarties.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion de carties</span>
-                                    </a>
-                                </li>
-                                <li class="nk-menu-item">
-                                    <a href="gestion-reservation.php" class="nk-menu-link">
-                                        <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion reservation</span>
+                                        <span class="nk-menu-text">Gestion des Qarties</span>
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
                                     <a href="gestion-formulaire.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
-                                        <span class="nk-menu-text">Gestion de formulaire</span>
+                                        <span class="nk-menu-text">Gestion des formulaires</span>
                                     </a>
                                 </li>
                                 <li class="nk-menu-item">
-                                    <a href="gestion-saison.php" class="nk-menu-link">
+                                    <a href="gestion-reservation.php" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
+                                        <span class="nk-menu-text">Gestion des reservations</span>
+                                    </a>
+                                </li>
+                                <li class="nk-menu-item">
+                                    <a href="gestion-plage-prix.php" class="nk-menu-link">
                                         <span class="nk-menu-icon"><em class="icon ni ni-layers-fill"></em></span>
                                         <span class="nk-menu-text">Gestion de plage de prix</span>
                                     </a>

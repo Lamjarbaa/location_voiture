@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
+    
     <body class="nk-body bg-lighter npc-general has-sidebar">
         <?php include 'sidebare.php'; ?>
         <div class="nk-wrap">
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                         <div class="nk-content-body">
                             <div class="nk-block-between">
                                 <div class="nk-block-head-content">
-                                    <h3 class="nk-block-title page-title">Saisons</h3>
+                                    <h3 class="nk-block-title page-title">Gestion des saisons</h3>
                                     <div class="nk-block-des text-soft">
                                         <p>Toutes les saisons disponibles</p>
                                     </div>
@@ -162,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                                 <div class="form-group">
                                                     <label for="edit_nom_saison_en">Nom de la saison (EN)</label>
                                                     <input type="text" class="form-control" id="edit_nom_saison_en" name="nom_saison_en" required>
-                                                </div>
+                                                </div>  
                                                 <div class="form-group">
                                                     <label for="edit_start_time">Date de début</label>
                                                     <input type="date" class="form-control" id="edit_start_time" name="start_time" required>
@@ -226,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                                             </tr>";
                                                     }
                                                 } else {
-                                                    echo "<tr><td colspan='7'>Aucune saison trouvée</td></tr>";
+                                                    echo "<tr><td colspan='9'>Aucune saison trouvée</td></tr>";
                                                 }
                                                 ?>
                                             </tbody>
@@ -241,57 +242,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 
         </div>
 
-        <script>
-$(document).ready(function () {
-    // Add new season
-    $('#seasonForm').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            url: '', // Same PHP file
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function () {
-                alert('Saison ajoutée avec succès!');
-                location.reload();
-            },
-            error: function () {
-                alert('Une erreur s\'est produite.');
-            }
-        });
-    });
+    <script>
+        $(document).ready(function () {
+            // Add new season
+            $('#seasonForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function () {
+                        alert('Saison ajoutée avec succès!');
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Une erreur s\'est produite.');
+                    }
+                });
+            });
 
-    // Update season
-    $('#editSeasonForm').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            url: '', // Same PHP file
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function () {
-                alert('Saison mise à jour avec succès!');
-                location.reload();
-            },
-            error: function () {
-                alert('Une erreur s\'est produite lors de la mise à jour.');
-            }
-        });
-    });
+            // Update season
+            $('#editSeasonForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function () {
+                        alert('Saison mise à jour avec succès!');
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Une erreur s\'est produite lors de la mise à jour.');
+                    }
+                });
+            });
 
-    // Populate edit form
-    $(document).on('click', '.btn-edit', function() {
-        var id = $(this).data('id');
-        var name_en = $(this).data('name-en');
-        var name_fr = $(this).data('name-fr');
-        var start_time = $(this).data('start-time');
-        var end_time = $(this).data('end-time');
-        $('#editSeasonModal').find('input[name="seasonId"]').val(id);
-        $('#editSeasonModal').find('input[name="nom_saison_en"]').val(name_en);
-        $('#editSeasonModal').find('input[name="nom_saison_fr"]').val(name_fr);
-        $('#editSeasonModal').find('input[name="start_time"]').val(start_time);
-        $('#editSeasonModal').find('input[name="end_time"]').val(end_time);
-    });
-});
+            // Populate edit form
+            $(document).on('click', '.btn-edit', function() {
+                var id = $(this).data('id');
+                var name_en = $(this).data('name-en');
+                var name_fr = $(this).data('name-fr');
+                var start_time = $(this).data('start-time');
+                var end_time = $(this).data('end-time');
+                $('#editSeasonModal').find('input[name="seasonId"]').val(id);
+                $('#editSeasonModal').find('input[name="nom_saison_en"]').val(name_en);
+                $('#editSeasonModal').find('input[name="nom_saison_fr"]').val(name_fr);
+                $('#editSeasonModal').find('input[name="start_time"]').val(start_time);
+                $('#editSeasonModal').find('input[name="end_time"]').val(end_time);
+            });
+        });
     </script>
-
+        <script src="./assets/js/bundle.js?ver=3.2.2"></script>
+        <script src="./assets/js/scripts.js?ver=3.2.2"></script>
+        <script src="./assets/js/charts/chart-crm.js?ver=3.2.2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>
